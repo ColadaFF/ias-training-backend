@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -19,16 +18,13 @@ public class SpringJdbcPersonsRepository implements PersonsRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Person> rowMapper = new RowMapper<>() {
-        @Override
-        public Person mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-            String personId = resultSet.getString("id_number");
-            String personName = resultSet.getString("name");
-            return new Person(
-                    personId,
-                    personName
-            );
-        }
+    private final RowMapper<Person> rowMapper = (resultSet, rowNum) -> {
+        String personId = resultSet.getString("id_number");
+        String personName = resultSet.getString("name");
+        return new Person(
+                personId,
+                personName
+        );
     };
 
 
@@ -48,25 +44,19 @@ public class SpringJdbcPersonsRepository implements PersonsRepository {
     @Override
     public void create(Person person) {
         String sqlQuery = "insert into persons(id_number, name) values(?, ?)";
-        jdbcTemplate.update(sqlQuery, new PreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps) throws SQLException {
-                ps.setString(1, person.getId());
-                ps.setString(2, person.getName());
-            }
+        jdbcTemplate.update(sqlQuery, ps -> {
+            ps.setString(1, person.getId());
+            ps.setString(2, person.getName());
         });
     }
 
     @Override
     public void update(String id, Person person) {
         String sqlQuery = "update persons set id_number = ?, name = ? where id_number = ?";
-        jdbcTemplate.update(sqlQuery, new PreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps) throws SQLException {
-                ps.setString(1, person.getId());
-                ps.setString(2, person.getName());
-                ps.setString(3, id);
-            }
+        jdbcTemplate.update(sqlQuery, ps -> {
+            ps.setString(1, person.getId());
+            ps.setString(2, person.getName());
+            ps.setString(3, id);
         });
     }
 
