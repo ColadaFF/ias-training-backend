@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+// @Component
 public class PostgresPeopleRepository implements PersonsRepository {
     private final DataSource dataSource;
 
