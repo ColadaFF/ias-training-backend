@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component
+//@Component
 public class InMemoryPersonsRepository implements PersonsRepository {
     private final Map<String, Person> database = new HashMap<>();
 
