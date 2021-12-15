@@ -1,8 +1,13 @@
 package com.example.demo.controllers;
 
 import com.example.demo.domain.Person;
+import com.example.demo.domain.PersonId;
+import com.example.demo.domain.PersonName;
+import com.example.demo.model.CreatePersonInput;
+import com.example.demo.model.CreatePersonOutput;
+import com.example.demo.model.UpdatePersonInput;
+import com.example.demo.model.UpdatePersonOutput;
 import com.example.demo.repository.PersonsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,12 +27,18 @@ public class PersonsController {
     }
 
     @PostMapping
-    public Person createPerson(
-            @RequestBody Person person
+    public CreatePersonOutput createPerson(
+            @RequestBody CreatePersonInput input
     ) {
+
+        Person person = new Person(
+                PersonId.random(),
+                new PersonName(input.getName()),
+                input.getBirthday()
+        );
         repository.create(person);
 
-        return person;
+        return new CreatePersonOutput(person);
     }
 
 
@@ -35,25 +46,32 @@ public class PersonsController {
     public Person getPerson(
             @PathVariable("id") String personId
     ) {
-        return repository.findOne(personId);
+        final PersonId id = PersonId.fromString(personId);
+        return repository.findOne(id);
     }
 
     @DeleteMapping(value = "/{id}")
-    public Person deletePerson(
+    public void deletePerson(
             @PathVariable("id") String personId
     ) {
-        Person foundPerson = repository.findOne(personId);
-        repository.delete(personId);
-        return foundPerson;
+        final PersonId id = PersonId.fromString(personId);
+        repository.delete(id);
     }
 
     @PutMapping(value = "/{id}")
-    public Person updatePerson(
-            @PathVariable("id") String personId,
-            @RequestBody Person person
+    public UpdatePersonOutput updatePerson(
+            @PathVariable("id") String unsafeId,
+            @RequestBody UpdatePersonInput input
     ) {
-        repository.update(personId, person);
+        final PersonId id = PersonId.fromString(unsafeId);
+        Person newPerson = new Person(
+                id,
+                new PersonName(input.getName()),
+                input.getBirthday()
+        );
+        repository.update(id, newPerson);
 
-        return repository.findOne(personId);
+        final Person found = repository.findOne(id);
+        return new UpdatePersonOutput(found);
     }
 }

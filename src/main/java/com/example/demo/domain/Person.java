@@ -1,38 +1,39 @@
 package com.example.demo.domain;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 public class Person {
-    private String id;
-    private String name;
+    private final PersonId id;
+    private final PersonName name;
+    private final LocalDate birthday;
 
-    public Person(String id, String name) {
+    public Person(PersonId id, PersonName name, LocalDate birthday) {
+        Objects.requireNonNull(id, "Person id can not be null");
+        Objects.requireNonNull(name, "Person name can not be null");
+        Objects.requireNonNull(birthday, "Person birthday can not be null");
         this.id = id;
         this.name = name;
+        this.birthday = birthday;
     }
 
-    public Person() {
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getId() {
+    public PersonId getId() {
         return id;
     }
 
-    public String getName() {
+    public PersonName getName() {
         return name;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
     }
 
     @Override
     public String toString() {
         return "Person{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
+                "id=" + id +
+                ", name=" + name +
                 '}';
     }
 }
