@@ -7,71 +7,56 @@ import com.example.demo.model.CreatePersonInput;
 import com.example.demo.model.CreatePersonOutput;
 import com.example.demo.model.UpdatePersonInput;
 import com.example.demo.model.UpdatePersonOutput;
-import com.example.demo.repository.PersonsRepository;
+import com.example.demo.services.PersonServices;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/persons")
 public class PersonsController {
-    private PersonsRepository repository;
+    private final PersonServices services;
 
-    public PersonsController(PersonsRepository repository) {
-        this.repository = repository;
+    public PersonsController(PersonServices services) {
+        this.services = services;
     }
+
 
     @GetMapping
     public List<Person> listPersons() {
-        return repository.list();
+        return services.listPersons();
     }
 
     @PostMapping
-    public CreatePersonOutput createPerson(
-            @RequestBody CreatePersonInput input
-    ) {
+    public CreatePersonOutput createPerson(@RequestBody CreatePersonInput input) {
+        PersonName personName = new PersonName(input.getName());
+        LocalDate birthday = input.getBirthday();
+        PersonId random = PersonId.random();
+        Person person = new Person(random, personName, birthday);
+        Person createdPerson = services.createPerson(person);
 
-        Person person = new Person(
-                PersonId.random(),
-                new PersonName(input.getName()),
-                input.getBirthday()
-        );
-        repository.create(person);
-
-        return new CreatePersonOutput(person);
+        return new CreatePersonOutput(createdPerson);
     }
 
 
     @GetMapping(value = "/{id}")
-    public Person getPerson(
-            @PathVariable("id") String personId
-    ) {
+    public Person getPerson(@PathVariable("id") String personId) {
         final PersonId id = PersonId.fromString(personId);
-        return repository.findOne(id);
+        return services.getPerson(id);
     }
 
     @DeleteMapping(value = "/{id}")
-    public void deletePerson(
-            @PathVariable("id") String personId
-    ) {
+    public void deletePerson(@PathVariable("id") String personId) {
         final PersonId id = PersonId.fromString(personId);
-        repository.delete(id);
+        services.deletePerson(id);
     }
 
     @PutMapping(value = "/{id}")
-    public UpdatePersonOutput updatePerson(
-            @PathVariable("id") String unsafeId,
-            @RequestBody UpdatePersonInput input
-    ) {
+    public UpdatePersonOutput updatePerson(@PathVariable("id") String unsafeId, @RequestBody UpdatePersonInput input) {
         final PersonId id = PersonId.fromString(unsafeId);
-        Person newPerson = new Person(
-                id,
-                new PersonName(input.getName()),
-                input.getBirthday()
-        );
-        repository.update(id, newPerson);
-
-        final Person found = repository.findOne(id);
-        return new UpdatePersonOutput(found);
+        Person newPerson = new Person(id, new PersonName(input.getName()), input.getBirthday());
+        final Person updated = services.updatePerson(id, newPerson);
+        return new UpdatePersonOutput(updated);
     }
 }
