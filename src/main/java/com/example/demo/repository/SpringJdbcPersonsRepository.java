@@ -37,7 +37,7 @@ public class SpringJdbcPersonsRepository implements PersonsRepository {
 
     @Override
     public List<Person> list() {
-        String sqlQuery = "select * from persons ";
+        String sqlQuery = "select * from persons";
         return jdbcTemplate.query(sqlQuery, rowMapper);
     }
 

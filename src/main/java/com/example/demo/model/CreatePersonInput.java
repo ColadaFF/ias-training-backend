@@ -3,8 +3,8 @@ package com.example.demo.model;
 import java.time.LocalDate;
 
 public class CreatePersonInput {
-    private String name;
-    private LocalDate birthday;
+        private String name;
+        private LocalDate birthday;
 
     public CreatePersonInput() {
     }

@@ -22,7 +22,6 @@ public class PersonsController {
         this.services = services;
     }
 
-
     @GetMapping
     public List<Person> listPersons() {
         return services.listPersons();
